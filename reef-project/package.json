@@ -1,0 +1,27 @@
+{
+  "name": "reef-project",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@polkadot/extension-dapp": "^0.44.6",
+    "@polkadot/rpc-provider": "^9.8.1",
+    "@reef-defi/evm-provider": "^1.0.9",
+    "@reef-defi/react-lib": "^1.2.7",
+    "@reef-defi/ui-kit": "^1.1.0",
+    "@thirdweb-dev/react": "^3.5.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.24",
+    "@types/react-dom": "^18.0.8",
+    "@vitejs/plugin-react": "^2.2.0",
+    "vite": "^3.2.3"
+  }
+}
