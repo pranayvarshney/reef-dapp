@@ -3,20 +3,19 @@ import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import { Provider, Signer } from "@reef-defi/evm-provider";
 import { WsProvider } from "@polkadot/rpc-provider";
 import { Contract } from "ethers";
-import GreeterContract from "./contracts/Greeter.json";
 import Uik from "@reef-defi/ui-kit";
+import FactoryAbi from "./MembershipNFT.json"
 
-const FactoryAbi = GreeterContract.abi;
-const factoryContractAddress = GreeterContract.address;
+const factoryContractAddress = "0xfC9345A2B81f18430ae41C815Ba0521e8F7c2cbc";
 
 const URL = "wss://rpc-testnet.reefscan.com/ws";
 
 function App() {
-	const [msgVal, setMsgVal] = useState("");
-	const [msg, setMsg] = useState("");
+	const [nftmetadata, setNFTdata] = useState("");
+	const [count, setCount] = useState("");
 	const [signer, setSigner] = useState();
 	const [isWalletConnected, setWalletConnected] = useState(false);
-
+	const [account, setAccount] = useState('')
 	const checkExtension = async () => {
 		let allInjected = await web3Enable("Reef");
 
@@ -41,13 +40,14 @@ function App() {
 				setWalletConnected(true);
 
 			console.log(allAccounts);
-
 			const wallet = new Signer(
 				evmProvider,
 				allAccounts[0].address,
 				injected
 			);
-
+			const evmAddress = await wallet.queryEvmAddress()
+			console.log(evmAddress)
+			setAccount(evmAddress)
 			// Claim default account
 			if (!(await wallet.isClaimed())) {
 				console.log(
@@ -68,167 +68,85 @@ function App() {
 		return true;
 	};
 
-	const getGreeting = async () => {
+	const getNFT = async () => {
+		// const allAccounts = await web3Accounts();
 		await checkSigner();
 		const factoryContract = new Contract(
 			factoryContractAddress,
-			FactoryAbi,
+			FactoryAbi.abi,
 			signer
 		);
-		const result = await factoryContract.greet();
-		setMsg(result);
+		console.log(account);
+		const result = await factoryContract.balanceOf(account, "0");
+		console.log(result)
+		setCount(result.toString());
+		await getDetails();
+	};
+	const getDetails = async()=>{
+		await checkSigner();
+		const factoryContract = new Contract(
+			factoryContractAddress,
+			FactoryAbi.abi,
+			signer
+		);
+		const result = await factoryContract.uri(0);
+		setNFTdata(result);
+		// const res = await fetch("ipfs://bafybeicb5uqhyd6lh4j7loolhgto6bemi4m6lo7wehrbkz6onjdiffh2ia/0.json");
+
+	}
+	const claimNFT = async () => {
+		// const allAccounts = await web3Accounts();
+		await checkSigner();
+		const factoryContract = new Contract(
+			factoryContractAddress,
+			FactoryAbi.abi,
+			signer
+		);
+		console.log(account);
+		const result = await factoryContract.Mint(account);
+		// result.wait(2);
+		await getNFT();
+		console.log(result)
+
 	};
 
-	const setGreeting = async () => {
-		await checkSigner();
-		const factoryContract = new Contract(
-			factoryContractAddress,
-			FactoryAbi,
-			signer
-		);
-		await factoryContract.setGreeting(msgVal);
-		setMsgVal("");
-		getGreeting();
-	};
+
 
 	return (
 		<Uik.Container className="main">
 			<Uik.Container vertical>
 				<Uik.Container>
-					<Uik.Text text="Create" type="headline" />
 					<Uik.ReefLogo /> <Uik.Text text="Dapp" type="headline" />
 				</Uik.Container>
 				{isWalletConnected ? (
 					<Uik.Container vertical className="container">
-						<Uik.Divider text="Get Message from Contract" />
 						<Uik.Card condensed>
-							<Uik.Container>
-								<Uik.Input
-									onChange={e => setMsgVal(e.target.value)}
-									value={msgVal}
-								/>
-								<Uik.Button
-									onKeyPress={e => {
-										e.key === "Enter" && setGreeting();
-									}}
-									onClick={setGreeting}
-									text="Set message"
-									className="container-button"
-								/>
-							</Uik.Container>
-						</Uik.Card>
-						<Uik.Divider text="Set Message to Contract" />
-						<Uik.Card condensed>
-							<Uik.Container flow="spaceBetween">
-								<Uik.Text
-									text={
-										msg.length
-											? msg
-											: "Nothing on contract yet"
-									}
-									type={msg.length ? "lead" : "light"}
-								/>
+							<Uik.Container vertical flow="spaceBetween">
 								<Uik.Button
 									className="container-button"
-									onClick={getGreeting}
-									text="Get Message"
+									onClick={getNFT}
+									text="Get NFT count"
 								/>
+								{count > '0' ? <Uik.Text>
+									{nftmetadata}
+									Congratulations you have the NFT</Uik.Text> :
+									<Uik.Container flow="spaceBetween">
+										<Uik.Text>
+											Go claim the nft
+										</Uik.Text >
+										<Uik.Button
+											className="container-button"
+											onClick={claimNFT}
+											text="Claim NFT"
+										/>
+									</Uik.Container>
+								}
 							</Uik.Container>
 						</Uik.Card>
 					</Uik.Container>
 				) : (
 					<>
 						<Uik.Container vertical className="container">
-							<Uik.Text
-								className="title"
-								text="Congratulations! Your Reef Dapp is set to go 🎉"
-								type="title"
-							/>
-							<Uik.Text
-								text="We've gone ahead and added essential Reef components to quickstart your Dapp 🪸"
-								type="light"
-							/>
-							<br />
-							<Uik.Text
-								type="light"
-								text={
-									<>
-										<a
-											target="_blank"
-											rel="noreferrer"
-											href="https://ui-kit.reef.io"
-										>
-											Reef UI Kit:
-										</a>
-										<span>
-											{" "}
-											Reef's official component library to
-											help you make beautiful dapps with
-											ease
-										</span>
-									</>
-								}
-							/>
-							<Uik.Text
-								type="light"
-								text={
-									<>
-										<a
-											target="_blank"
-											rel="noreferrer"
-											href="https://github.com/reef-defi/evm-provider.js"
-										>
-											Reef EVM Provider:
-										</a>
-										<span>
-											{" "}
-											Implements a web3 provider which can
-											interact with the Reef chain EVM.
-										</span>
-									</>
-								}
-							/>
-							<Uik.Text
-								type="light"
-								text={
-									<>
-										<a
-											target="_blank"
-											rel="noreferrer"
-											href="https://create-react-app.dev/"
-										>
-											Create React App:
-										</a>
-										<span>
-											{" "}
-											Create React App is the best way to
-											start building a new single-page
-											application in React.
-										</span>
-									</>
-								}
-							/>
-							<Uik.Text
-								type="light"
-								text={
-									<>
-										<a
-											target="_blank"
-											rel="noreferrer"
-											href="https://github.com/dilanx/craco"
-										>
-											Craco:
-										</a>
-										<span>
-											{" "}
-											Craco helps you leverage the power
-											of webpack and babel configurations
-											without ejecting your CRA template
-										</span>
-									</>
-								}
-							/>
-							<br />
 							<Uik.Text
 								text={
 									<>
