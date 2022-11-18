@@ -27,8 +27,20 @@ contract GovernorContract is
         GovernorVotesQuorumFraction(_quorumPercentage)
         GovernorTimelockControl(_timelock)
     {}
-
+    uint256 public proposalIndex;
     // The following functions are overrides required by Solidity.
+    struct Proposal {
+        uint256 proposalId;
+        address proposer;
+        address[] targets;
+        uint256[] values;
+        string[] signatures;
+        bytes[] calldatas;
+        uint256 startBlock;
+        uint256 endBlock;
+        string description;
+    }
+    mapping(uint256 => Proposal) public proposals;
 
     function votingDelay()
         public
@@ -71,8 +83,30 @@ contract GovernorContract is
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public override(Governor, IGovernor) returns (uint256) {
-        return super.propose(targets, values, calldatas, description);
+    ) public override(Governor, IGovernor) returns (uint256 proposalId) {
+         proposalId = super.propose(targets, values, calldatas, description);
+         proposals[proposalIndex] = Proposal({
+            proposalId: proposalId,
+            proposer: _msgSender(),
+            targets: targets,
+            values: values,
+            signatures: new string[](targets.length),
+            calldatas: calldatas,
+            startBlock: proposalSnapshot(proposalId),
+            endBlock: proposalDeadline(proposalId),
+            description: description
+        });
+        proposalIndex+=1;
+       
+    }
+
+     function getAllProposals() external view returns (Proposal[] memory allProposals) {
+        uint256 nextProposalIndex = proposalIndex;
+
+        allProposals = new Proposal[](nextProposalIndex);
+        for (uint256 i = 0; i < nextProposalIndex; i += 1) {
+            allProposals[i] = proposals[i];
+        }
     }
 
     function proposalThreshold()

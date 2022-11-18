@@ -8,7 +8,7 @@ import FactoryAbi from "./MembershipNFT.json"
 import factoryAbi from "./GovernorContract.json"
 
 const factoryContractAddress = "0xfC9345A2B81f18430ae41C815Ba0521e8F7c2cbc";
-const voteContractAddress = "0x9703cB4Cf5cC707266a58283b3d8b50337D4E241";
+const voteContractAddress = "0xEe6c1e6c545aAAfec2243769927285052c560080";
 
 const URL = "wss://rpc-testnet.reefscan.com/ws";
 
@@ -136,7 +136,7 @@ function App() {
 
 	};
 
-	const fetchall = async()=>{
+	const fetchall = async () => {
 		await checkSigner();
 		const factoryContract = new Contract(
 			voteContractAddress,
@@ -144,16 +144,16 @@ function App() {
 			signer
 		);
 		console.log(account);
-		// const getAllProposals = async () => {
-		// 	try {
-		// 		const proposals = await factoryContract.getAllProposals();
-		// 		setProposals(proposals);
-		// 		console.log("🌈 Proposals:", proposals);
-		// 	} catch (error) {
-		// 		console.log("failed to get proposals", error);
-		// 	}
-		// };
-		// getAllProposals();
+		const getAllProposal = async () => {
+			try {
+				const proposals = await factoryContract.getAllProposals();
+				setProposals(proposals);
+				console.log(" Proposals:", proposals);
+			} catch (error) {
+				console.log("failed to get proposals", error);
+			}
+		};
+		getAllProposal();
 	}
 
 	return (
@@ -164,53 +164,62 @@ function App() {
 				</Uik.Container>
 				{isWalletConnected ? (
 					<Uik.Container vertical className="container">
-						<Uik.Card condensed>
-							<Uik.Container vertical flow="spaceBetween">
-								<Uik.Button
-									className="container-button"
-									onClick={getNFT}
-									text="Get NFT count"
-								/>
-								{count > '0' ?
-									<Uik.Container vertical className="container">
+						{/* <Uik.Card condensed> */}
+						<Uik.Container vertical flow="spaceBetween">
+							<Uik.Button
+								className="container-button"
+								onClick={getNFT}
+								text="Check if you have the ConserveNFT"
+							/>
+							{count > '0' ?
+								<Uik.Container className="container">
 									{/* <Uik.Tag color="cyan"> */}
-											<Uik.Container vertical className="uik-tag--cyan" flow="spaceBetween">
-												<Uik.Text>
-													{nftmetadata.name}</Uik.Text>
-												<Uik.Text>	{nftmetadata && nftmetadata.description}</Uik.Text>
-												<Uik.Text>
-
-													<img height={'200px'} width={'200px'} src="https://bafybeigvax753w4jfhyh5ygofbnwh2xhvkoviodvoybuee6b2zfhmsvdg4.ipfs.nftstorage.link/" ></img>
-													{/* {nftmetadata && nftmetadata.image} */}
-
-												</Uik.Text>
-
-												<Uik.Text>	Congratulations you have the NFT</Uik.Text>
-											</Uik.Container>
-										{/* </Uik.Tag> */}
-										<Uik.Container>
-											<Uik.Button
-												className="container-button"
-												onClick={fetchall}
-												text="Get proposals"
-											/>
-										</Uik.Container>
-
-									</Uik.Container>
-									:
-									<Uik.Container flow="spaceBetween">
+									<Uik.Container vertical className="uik-tag--cyan" flow="spaceBetween">
 										<Uik.Text>
-											Go claim the free entry nft
-										</Uik.Text >
+											{nftmetadata.name}</Uik.Text>
+										<Uik.Text>	{nftmetadata && nftmetadata.description}</Uik.Text>
+										<Uik.Text>
+
+											<img height={'200px'} width={'200px'} src="https://bafybeigvax753w4jfhyh5ygofbnwh2xhvkoviodvoybuee6b2zfhmsvdg4.ipfs.nftstorage.link/" ></img>
+											{/* {nftmetadata && nftmetadata.image} */}
+
+										</Uik.Text>
+
+										<Uik.Text>	Congratulations you have the NFT</Uik.Text>
+									</Uik.Container>
+									{/* </Uik.Tag> */}
+									<Uik.Container vertical>
 										<Uik.Button
 											className="container-button"
-											onClick={claimNFT}
-											text="Claim NFT"
+											onClick={fetchall}
+											text="Get proposals"
 										/>
+										{proposals && proposals.map((proposal) => (
+
+											<div key={proposal.proposalId} className="card">
+												<h5>{proposal.description}</h5>
+												<div>
+
+												</div>
+											</div>
+										))}
 									</Uik.Container>
-								}
-							</Uik.Container>
-						</Uik.Card>
+
+								</Uik.Container>
+								:
+								<Uik.Container flow="spaceBetween">
+									<Uik.Text>
+										Go claim the free entry nft
+									</Uik.Text >
+									<Uik.Button
+										className="container-button"
+										onClick={claimNFT}
+										text="Claim NFT"
+									/>
+								</Uik.Container>
+							}
+						</Uik.Container>
+						{/* </Uik.Card> */}
 					</Uik.Container>
 				) : (
 					<>

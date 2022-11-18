@@ -1538,8 +1538,8 @@
       ]
     },
     "D:\\coding\\web3\\reef-dapp\\contracts\\GovernanceContract.sol": {
-      "lastModificationDate": 1668676364826,
-      "contentHash": "97af34c107a18e39270333e2d4ae30fa",
+      "lastModificationDate": 1668723459396,
+      "contentHash": "3e988d8e1d92a7531eaa1ea15c5ba069",
       "sourceName": "contracts/GovernanceContract.sol",
       "solcConfig": {
         "version": "0.8.4",
