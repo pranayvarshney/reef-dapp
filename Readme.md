@@ -10,4 +10,4 @@
 5. create-sample-propsoal.js helps to create a sample proposal on governance contract 
 
 # pending
-create function to fetch all proposals. allow users to voten on the proposal.
+allow users to voten on the proposal.
